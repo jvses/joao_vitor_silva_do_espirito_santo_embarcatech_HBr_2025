@@ -20,6 +20,8 @@
 #define BUTTON_B  6
 
 volatile int_fast8_t segundos={9},cont_B={0};
+volatile bool pressed_b ={false};
+volatile absolute_time_t last_time_presed_b;
 
 // Converte uint8_t para string (ex: 255 → "255")
 char* int8_to_str(int_fast8_t value, char* buffer, size_t buffer_size) {
@@ -78,7 +80,21 @@ void gpio_irq_handler(uint gpio, uint32_t events){//inicia exame e/ou reinicia
     // Rotina botão B
     // printf("Apertei o B\n");
         if(segundos>0){
-            cont_B++;
+        static absolute_time_t last_time_presed_b;
+            if(!pressed_b){
+                last_time_presed_b = get_absolute_time();
+                pressed_b=true;
+            }else{
+                absolute_time_t now = get_absolute_time();
+                if(absolute_time_diff_us(last_time_presed_b,now)>4000){//debounce de 4ms
+                    cont_B++;
+                    pressed_b=false;
+                }
+            }
+
+            
+                //if(segundos>0){
+                    //cont_B++;
         }
     }
 }
@@ -87,38 +103,54 @@ void setup_buttons(){
     gpio_init(BUTTON_A);
     gpio_set_dir(BUTTON_A, GPIO_IN);
     gpio_pull_up(BUTTON_A); // Habilita o resistor pull-up interno para evitar leituras incorretas.
-    gpio_set_irq_enabled(BUTTON_A, GPIO_IRQ_EDGE_RISE,true);
+    gpio_set_irq_enabled(BUTTON_A, GPIO_IRQ_EDGE_FALL,true);
     gpio_init(BUTTON_B);
     gpio_set_dir(BUTTON_B, GPIO_IN);
     gpio_pull_up(BUTTON_B); // Habilita o resistor pull-up interno para evitar leituras incorretas.
-    gpio_set_irq_enabled(BUTTON_B, GPIO_IRQ_EDGE_RISE,true);
+    gpio_set_irq_enabled(BUTTON_B, GPIO_IRQ_EDGE_FALL,true);
 
     // Configura o handler global de interrupções
     gpio_set_irq_callback(gpio_irq_handler);
     irq_set_enabled(IO_IRQ_BANK0, true);
   }
 
+bool repeating_timer_callback(struct repeating_timer *t) {
+    if(segundos==0){
+        //oled_clear();
+        oled_print_info();
+    }
+    if(segundos>0){
+        //oled_clear();
+        oled_print_info();
+        segundos--;
+    }
+}
+
 
 int main()
 {
-    stdio_init_all();
+    //stdio_init_all();
     setup_buttons();
     setup_OLED();
     calculate_render_area_buffer_length(&frame_area);
     oled_clear();// zera o display inteiro
+    struct repeating_timer timer;
+    add_repeating_timer_ms(1000, repeating_timer_callback, NULL, &timer);
     
     while (true) {
-        if(segundos==0){
-            // oled_clear();
-            oled_print_info();
-        }
-        if(segundos>0){
-            oled_clear();
-            oled_print_info();
-            segundos--;
-        }
+//        if(segundos==0){
+//            // oled_clear();
+//            oled_print_info();
+//        }
+//        if(segundos>0){
+//            oled_clear();
+//        //    oled_print_info();
+        //    segundos--;
+        //}
+        
+        tight_loop_contents();
         // oled_print_info();
         // printf("Hello, world!\n");
-        sleep_ms(1000);
+        //sleep_ms(1000);
     }
 }
