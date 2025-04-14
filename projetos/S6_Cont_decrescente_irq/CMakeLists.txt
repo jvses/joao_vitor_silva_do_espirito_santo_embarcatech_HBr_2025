@@ -16,7 +16,7 @@ else()
     set(USERHOME $ENV{HOME})
 endif()
 set(sdkVersion 2.1.0)
-set(toolchainVersion 13_3_Rel1)
+set(toolchainVersion 14_2_Rel1)
 set(picotoolVersion 2.1.0)
 set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
 if (EXISTS ${picoVscode})
@@ -28,38 +28,38 @@ set(PICO_BOARD pico_w CACHE STRING "Board type")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(s6_cont_irq C CXX ASM)
+project(S6_cont_decre_isr C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(s6_cont_irq s6_cont_irq.c inc/ssd1306_i2c.c)
+add_executable(S6_cont_decre_isr main.c inc/ssd1306_i2c.c)
 
-pico_set_program_name(s6_cont_irq "s6_cont_irq")
-pico_set_program_version(s6_cont_irq "0.1")
+pico_set_program_name(S6_cont_decre_isr "S6_cont_decre_isr")
+pico_set_program_version(S6_cont_decre_isr "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(s6_cont_irq 0)
-pico_enable_stdio_usb(s6_cont_irq 1)
+pico_enable_stdio_uart(S6_cont_decre_isr 0)
+pico_enable_stdio_usb(S6_cont_decre_isr 1)
 
 # Add the standard library to the build
-target_link_libraries(s6_cont_irq
+target_link_libraries(S6_cont_decre_isr
         pico_stdlib)
 
 # Add the standard include files to the build
-target_include_directories(s6_cont_irq PRIVATE
+target_include_directories(S6_cont_decre_isr PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
 )
 
 # Add any user requested libraries
-target_link_libraries(s6_cont_irq 
-    hardware_timer
-    hardware_irq
-    hardware_i2c
-    pico_time
+target_link_libraries(S6_cont_decre_isr 
+        hardware_timer
+        hardware_irq
+        hardware_i2c
+        pico_time
         )
 
-pico_add_extra_outputs(s6_cont_irq)
+pico_add_extra_outputs(S6_cont_decre_isr)
 

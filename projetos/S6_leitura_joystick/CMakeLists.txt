@@ -28,36 +28,36 @@ set(PICO_BOARD pico_w CACHE STRING "Board type")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(s6_leitura_temp C CXX ASM)
+project(s6_leitura_joystick C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(s6_leitura_temp main.c inc/ssd1306_i2c.c)
+add_executable(s6_leitura_joystick main.c inc/ssd1306_i2c.c)
 
-pico_set_program_name(s6_leitura_temp "s6_leitura_temp")
-pico_set_program_version(s6_leitura_temp "0.1")
+pico_set_program_name(s6_leitura_joystick "s6_leitura_joystick")
+pico_set_program_version(s6_leitura_joystick "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(s6_leitura_temp 0)
-pico_enable_stdio_usb(s6_leitura_temp 1)
+pico_enable_stdio_uart(s6_leitura_joystick 0)
+pico_enable_stdio_usb(s6_leitura_joystick 1)
 
 # Add the standard library to the build
-target_link_libraries(s6_leitura_temp
+target_link_libraries(s6_leitura_joystick
         pico_stdlib)
 
 # Add the standard include files to the build
-target_include_directories(s6_leitura_temp PRIVATE
+target_include_directories(s6_leitura_joystick PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
 )
 
 # Add any user requested libraries
-target_link_libraries(s6_leitura_temp 
+target_link_libraries(s6_leitura_joystick 
         hardware_i2c
         hardware_adc
         )
 
-pico_add_extra_outputs(s6_leitura_temp)
+pico_add_extra_outputs(s6_leitura_joystick)
 

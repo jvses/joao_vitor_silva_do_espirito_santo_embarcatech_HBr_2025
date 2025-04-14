@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include<string.h>
+#include <string.h> // Para memcpy()
+#include <inttypes.h>//para printar o tempo certo
 #include "pico/stdlib.h"
 #include "hardware/timer.h"
 #include "pico/time.h"
@@ -18,6 +19,14 @@
 #define BUTTON_A  5 
 #define BUTTON_B  6
 
+volatile int_fast8_t segundos={9},cont_B={0};
+
+// Converte uint8_t para string (ex: 255 → "255")
+char* int8_to_str(int_fast8_t value, char* buffer, size_t buffer_size) {
+    snprintf(buffer, buffer_size, "%" PRId8, value);
+    return buffer;
+  }
+
 //declaração global do OLED para usar em funções fora da main
 uint8_t ssd[ssd1306_buffer_length];
 // Preparar área de renderização para o display (ssd1306_width pixels por ssd1306_n_pages páginas)
@@ -27,6 +36,7 @@ struct render_area frame_area = {
     start_page : 0,
     end_page : ssd1306_n_pages - 1
 };
+
 void setup_OLED(){
     // Inicialização do i2c
     i2c_init(i2c1, ssd1306_i2c_clock * 1000);
@@ -35,7 +45,7 @@ void setup_OLED(){
     gpio_pull_up(I2C_SDA);
     gpio_pull_up(I2C_SCL);
   
-    // // Processo de inicialização completo do OLED SSD1306
+    // Processo de inicialização completo do OLED SSD1306
     ssd1306_init();
   }
 
@@ -44,15 +54,33 @@ void oled_clear(){
     render_on_display(ssd, &frame_area);
 }
 
+void oled_print_info(){
+    char tempo[] = "time: ";
+    char seg[3];
+    int8_to_str(segundos,seg,sizeof(seg));
+    strncat(tempo, seg, sizeof(seg));
+    memset(ssd,0,ssd1306_buffer_length);//limpa o buffer
+    ssd1306_draw_string(ssd,3,0,tempo);
+    char msgB[]= "Pres. B: ";
+    int8_to_str(cont_B,seg,sizeof(seg));
+    strncat(msgB, seg, sizeof(seg));
+    ssd1306_draw_string(ssd,3,8,msgB);
+    render_on_display(ssd,&frame_area);
+}
+
 void gpio_irq_handler(uint gpio, uint32_t events){//inicia exame e/ou reinicia
     if (gpio == BUTTON_A) {
     //   Rotina botão A
-        printf("Apertei o A\n");
+        // printf("Apertei o A\n");
+        segundos=9;
+        cont_B=0;
     } else if (gpio == BUTTON_B) {
     // Rotina botão B
-    printf("Apertei o B\n");
+    // printf("Apertei o B\n");
+        if(segundos>0){
+            cont_B++;
+        }
     }
-//   sleep_ms(10);
 }
 
 void setup_buttons(){
@@ -64,22 +92,33 @@ void setup_buttons(){
     gpio_set_dir(BUTTON_B, GPIO_IN);
     gpio_pull_up(BUTTON_B); // Habilita o resistor pull-up interno para evitar leituras incorretas.
     gpio_set_irq_enabled(BUTTON_B, GPIO_IRQ_EDGE_RISE,true);
-  
+
     // Configura o handler global de interrupções
     gpio_set_irq_callback(gpio_irq_handler);
     irq_set_enabled(IO_IRQ_BANK0, true);
   }
+
 
 int main()
 {
     stdio_init_all();
     setup_buttons();
     setup_OLED();
-    // calculate_render_area_buffer_length(&frame_area);
-    // oled_clear();
-
+    calculate_render_area_buffer_length(&frame_area);
+    oled_clear();// zera o display inteiro
+    
     while (true) {
-        printf("Hello, world!\n");
+        if(segundos==0){
+            // oled_clear();
+            oled_print_info();
+        }
+        if(segundos>0){
+            oled_clear();
+            oled_print_info();
+            segundos--;
+        }
+        // oled_print_info();
+        // printf("Hello, world!\n");
         sleep_ms(1000);
     }
 }
