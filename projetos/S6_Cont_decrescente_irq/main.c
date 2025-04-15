@@ -20,7 +20,6 @@
 #define BUTTON_B  6
 
 volatile int_fast8_t segundos={9},cont_B={0};
-volatile bool pressed_b ={false};
 volatile absolute_time_t last_time_presed_b;
 
 // Converte uint8_t para string (ex: 255 → "255")
@@ -46,9 +45,9 @@ void setup_OLED(){
     gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
     gpio_pull_up(I2C_SDA);
     gpio_pull_up(I2C_SCL);
-  
     // Processo de inicialização completo do OLED SSD1306
     ssd1306_init();
+    calculate_render_area_buffer_length(&frame_area);
   }
 
 void oled_clear(){
@@ -76,25 +75,17 @@ void gpio_irq_handler(uint gpio, uint32_t events){//inicia exame e/ou reinicia
         // printf("Apertei o A\n");
         segundos=9;
         cont_B=0;
+        oled_clear();
+        oled_print_info();
     } else if (gpio == BUTTON_B) {
     // Rotina botão B
     // printf("Apertei o B\n");
         if(segundos>0){
-        static absolute_time_t last_time_presed_b;
-            if(!pressed_b){
-                last_time_presed_b = get_absolute_time();
-                pressed_b=true;
-            }else{
-                absolute_time_t now = get_absolute_time();
-                if(absolute_time_diff_us(last_time_presed_b,now)>4000){//debounce de 4ms
-                    cont_B++;
-                    pressed_b=false;
-                }
+            absolute_time_t now = get_absolute_time();
+            if(absolute_time_diff_us(last_time_presed_b,now)>50000){//debounce de 50ms
+                cont_B++;
+                last_time_presed_b = now;
             }
-
-            
-                //if(segundos>0){
-                    //cont_B++;
         }
     }
 }
@@ -103,54 +94,42 @@ void setup_buttons(){
     gpio_init(BUTTON_A);
     gpio_set_dir(BUTTON_A, GPIO_IN);
     gpio_pull_up(BUTTON_A); // Habilita o resistor pull-up interno para evitar leituras incorretas.
-    gpio_set_irq_enabled(BUTTON_A, GPIO_IRQ_EDGE_FALL,true);
+    gpio_set_irq_enabled(BUTTON_A, GPIO_IRQ_EDGE_RISE,true);
     gpio_init(BUTTON_B);
     gpio_set_dir(BUTTON_B, GPIO_IN);
     gpio_pull_up(BUTTON_B); // Habilita o resistor pull-up interno para evitar leituras incorretas.
-    gpio_set_irq_enabled(BUTTON_B, GPIO_IRQ_EDGE_FALL,true);
-
+    gpio_set_irq_enabled(BUTTON_B, GPIO_IRQ_EDGE_RISE,true);
     // Configura o handler global de interrupções
     gpio_set_irq_callback(gpio_irq_handler);
     irq_set_enabled(IO_IRQ_BANK0, true);
   }
 
 bool repeating_timer_callback(struct repeating_timer *t) {
-    if(segundos==0){
-        //oled_clear();
-        oled_print_info();
-    }
     if(segundos>0){
-        //oled_clear();
-        oled_print_info();
         segundos--;
     }
 }
-
+bool update_display_callback(struct repeating_timer *t){
+    static uint8_t clean_count={0};
+    oled_print_info();
+    if(segundos==0 && clean_count == 0){
+        oled_clear();
+        oled_print_info();
+        clean_count++;
+    }
+}
 
 int main()
 {
     //stdio_init_all();
     setup_buttons();
     setup_OLED();
-    calculate_render_area_buffer_length(&frame_area);
     oled_clear();// zera o display inteiro
-    struct repeating_timer timer;
-    add_repeating_timer_ms(1000, repeating_timer_callback, NULL, &timer);
-    
+    struct repeating_timer timer_count, update_display;
+    add_repeating_timer_ms(1000, repeating_timer_callback, NULL, &timer_count);
+    add_repeating_timer_ms(50, update_display_callback,NULL,&update_display);
+    last_time_presed_b = get_absolute_time();
     while (true) {
-//        if(segundos==0){
-//            // oled_clear();
-//            oled_print_info();
-//        }
-//        if(segundos>0){
-//            oled_clear();
-//        //    oled_print_info();
-        //    segundos--;
-        //}
-        
         tight_loop_contents();
-        // oled_print_info();
-        // printf("Hello, world!\n");
-        //sleep_ms(1000);
     }
 }
