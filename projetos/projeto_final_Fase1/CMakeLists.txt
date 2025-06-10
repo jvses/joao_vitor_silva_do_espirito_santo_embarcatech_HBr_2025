@@ -35,15 +35,15 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(Matrix_NeoPixel Matrix_NeoPixel.c inc/ssd1306_i2c.c)
+add_executable(Matrix_NeoPixel src/main.c src/oled_ctrl.c src/neopin.c src/joystick.c include/ssd1306_i2c.c )
 
 pico_set_program_name(Matrix_NeoPixel "Matrix_NeoPixel")
 pico_set_program_version(Matrix_NeoPixel "0.1")
 
 # Generate PIO header
-pico_generate_pio_header(Matrix_NeoPixel ${CMAKE_CURRENT_LIST_DIR}/blink.pio)
+# pico_generate_pio_header(Matrix_NeoPixel ${CMAKE_CURRENT_LIST_DIR}/blink.pio)
 
-pico_generate_pio_header(Matrix_NeoPixel ${CMAKE_CURRENT_LIST_DIR}/ws2818b.pio)
+pico_generate_pio_header(Matrix_NeoPixel ${CMAKE_CURRENT_LIST_DIR}/include/ws2818b.pio)
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(Matrix_NeoPixel 0)
@@ -56,6 +56,8 @@ target_link_libraries(Matrix_NeoPixel
 # Add the standard include files to the build
 target_include_directories(Matrix_NeoPixel PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/include
+        ${CMAKE_CURRENT_LIST_DIR}/src
 )
 
 # Add any user requested libraries
@@ -65,10 +67,9 @@ target_link_libraries(Matrix_NeoPixel
         hardware_adc
         hardware_timer
         hardware_irq
-        hardware_i2c
         pico_time
         pico_rand
-        pico_multicore
+        hardware_i2c
         )
 
 pico_add_extra_outputs(Matrix_NeoPixel)
