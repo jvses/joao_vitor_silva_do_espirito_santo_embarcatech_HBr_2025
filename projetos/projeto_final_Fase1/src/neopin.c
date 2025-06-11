@@ -61,8 +61,7 @@ void npSetLED(const uint index, const uint8_t r, const uint8_t g, const uint8_t 
 
 void npSetArrow(uint8_t direcao){ //desenha a seta de cordo com a direção
   uint8_t leds_addrs[9]={};
-  switch (direcao)
-  {
+  switch (direcao){
   case 0://norte
     uint8_t aux0[]={2,7,10,12,14,16,17,18,22};
     memcpy(leds_addrs, aux0, sizeof(leds_addrs));
@@ -131,4 +130,25 @@ void npSetWait(uint8_t r, uint8_t g, uint8_t b){//desenha ampulheta
   for(int i=0; i<15;i++){
     npSetLED(leds_addrs[i],r,g,b);
   }
+}
+
+
+uint8_t rand_sign(){ // função para pegar valor aleatório entre 0 e 7
+	uint8_t num = get_rand_32() % 10;
+	while (num >= 8){
+		num = get_rand_32() % 10;
+	}
+	return num;
+}
+
+void npDrawArrow(uint8_t placa){
+	npClear();
+	npSetArrow(placa);
+	npWrite();
+}
+
+void npDrawAmpulheta(uint8_t r, uint8_t g, uint8_t b){
+	npClear();
+	npSetWait(r, g, b);
+	npWrite();
 }

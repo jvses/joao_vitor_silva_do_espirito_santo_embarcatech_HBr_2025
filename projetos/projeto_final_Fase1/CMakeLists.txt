@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(Matrix_NeoPixel src/main.c src/oled_ctrl.c src/neopin.c src/joystick.c include/ssd1306_i2c.c )
+add_executable(Matrix_NeoPixel src/main.c src/oled_ctrl.c src/neopin.c src/joystick.c src/exam.c include/ssd1306_i2c.c )
 
 pico_set_program_name(Matrix_NeoPixel "Matrix_NeoPixel")
 pico_set_program_version(Matrix_NeoPixel "0.1")

@@ -19,7 +19,7 @@ void oled_clear();
 void oled_render();
 void oled_msg_print_nivel(int8_t nivel);
 void oled_msg_inicio(int8_t nivel);
-void oled_times_print(int8_t contador_turnos,float *tempo_turnos,uint8_t start_addry);
+void oled_times_print(int8_t nivel, int8_t contador_turnos,float *tempo_turnos,uint8_t start_addry);
 void oled_print_media(float soma);
 
 

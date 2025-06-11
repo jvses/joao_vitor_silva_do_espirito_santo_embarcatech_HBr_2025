@@ -49,8 +49,9 @@ void oled_msg_inicio(int8_t nivel){
 //   render_on_display(ssd, &frame_area);
 }
 
-void oled_times_print(int8_t contador_turnos,float *tempo_turnos,uint8_t start_addry){
-
+void oled_times_print(int8_t nivel,int8_t contador_turnos,float *tempo_turnos,uint8_t start_addry){
+  
+    oled_msg_print_nivel(nivel);
     uint8_t y=start_addry;
 
     for(uint8_t i=0; i< contador_turnos ;i++){//for para escrever todos os tempos pegos

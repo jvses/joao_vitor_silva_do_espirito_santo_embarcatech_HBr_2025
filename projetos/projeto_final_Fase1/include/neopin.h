@@ -28,6 +28,9 @@ void npSetArrow(uint8_t direcao);
 void npClear();//Limpa o buffer de pixels.
 void npWrite();// Escreve cada dado de 8-bits dos pixels em sequência no buffer da máquina PIO.
 void npSetWait(uint8_t r, uint8_t g, uint8_t b);//desenha ampulheta
+uint8_t rand_sign();
+void npDrawArrow(uint8_t placa);
+void npDrawAmpulheta(uint8_t r, uint8_t g, uint8_t b);
 
 
 
