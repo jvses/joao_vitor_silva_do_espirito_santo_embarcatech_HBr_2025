@@ -161,10 +161,11 @@ void exam_handler(){
     if (exam_started){//se exame teve início
 
         if (!sign_change){ // se o sinal não tiver mudado(se manteve em false)
-            npClear();
-            npSetArrow(sign_placa);
-            npWrite();
-            sleep_us(100); // pausa pequena para polpar esforço
+            // npClear();
+            // npSetArrow(sign_placa);
+            // npWrite();
+			npDrawArrow(sign_placa);
+            sleep_us(800); // pausa para estabiização da matriz(sem isso ela pisca semparar)
         }
         else{ // se ele for verdadeiro
 

@@ -65,6 +65,7 @@ target_link_libraries(Matrix_NeoPixel
         hardware_dma
         hardware_pio
         hardware_adc
+        hardware_dma
         hardware_timer
         hardware_irq
         pico_time

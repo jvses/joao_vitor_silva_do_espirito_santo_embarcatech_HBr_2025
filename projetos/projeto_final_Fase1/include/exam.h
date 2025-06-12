@@ -20,14 +20,9 @@
 #define BUTTON_B 6
 
 
-
-
 void exam_setup();
-
-
 bool repeating_reader(struct repeating_timer *t);
 void oled_print_info();
-
 
 void gpio_irq_handler(uint gpio, uint32_t events);
 void setup_buttons();
